@@ -43,7 +43,6 @@ def encode(symb2freq):
             pop = elem
             lista.append(huffCode(pop[0], pop[1]))
     # ordeno por codigo??, con item y atr getter de la letra
-    print(lista)
     return lista
 
 
@@ -92,7 +91,11 @@ def compress(huff, args):
     # su código Huffman. En nuestro caso estos datos estan en huff
 
     for elem in huff:
+        symb = elem.symbol
+        size = len(elem.code)
+        code = elem.code
         print(elem)
+
 
     for x in range(0, len(codificadoTotal), 8):
         newfile.write(struct.pack('!I', int(codificadoTotal[x: x + 8], 2)))
