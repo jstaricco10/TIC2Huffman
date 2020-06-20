@@ -77,6 +77,7 @@ def compress(huff, args):
     if len(codificadoTotal) / 8 > filelen and not args.force:
         file.close()
         return
+
     # comentado para trabajar mientras con archivos chicos sin -f
     # if not args.force:
     #     if filelen < len(codificadoTotal):
@@ -84,9 +85,15 @@ def compress(huff, args):
     #         file.close()
     #         return
     newfile = open(args.file + ".huff", 'wb')
-    hd = Header('JA', len(huff), len(huff[-1].code), filelen)
-    for x in range(2):  # 4 por ser el largo en bytes del hd
-        newfile.write(struct.pack('!I', int(hd[x: x + 8], 2)))
+    # hd = Header('JA', len(huff), len(huff[-1].code), filelen)
+    # for x in range(2):  # 4 por ser el largo en bytes del hd
+    #     newfile.write(struct.pack('!I', int(hd[x: x + 8], 2)))
+    # Ahora se debe agregar un array de elementos de 6 bytes, cada uno de los cuales identifica un símbolo, su tamano y
+    # su código Huffman. En nuestro caso estos datos estan en huff
+
+    for elem in huff:
+        print(elem)
+
     for x in range(0, len(codificadoTotal), 8):
         newfile.write(struct.pack('!I', int(codificadoTotal[x: x + 8], 2)))
     # newfile.write(bytearray(int(codificadoTotal[x:x + 8], 2) for x in range(0, len(codificadoTotal), 8)))
@@ -102,9 +109,8 @@ def main():
     parser.add_argument('file', help='Archivo a comprimir')
     parser.add_argument('-f', '--force', help='Fuerza compresion aunque aumente el tamano', action='store_true')
     parser.add_argument('-v', '--verbose', help='Imprime informacion del avance del proceso', action='store_true')
-    # con el parser debo procesar el nombre del archivo
     args = parser.parse_args()
-    file = open(args.file, 'rb')  # debemos controlar el caso de que el file no sea encontrado
+    file = open(args.file, 'rb')
     symb2freq = defaultdict(int)
     while True:
         b = file.read(1)
