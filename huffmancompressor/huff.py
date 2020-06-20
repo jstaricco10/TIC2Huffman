@@ -97,7 +97,7 @@ def compress(huff, args):
         print(code)
 
     for x in range(0, len(codificadoTotal), 8):
-        newfile.write(struct.pack('!I', int(codificadoTotal[x: x + 8], 2)))
+        newfile.write(struct.pack('!I', int(codificadoTotal[x: x + 8], 2)))  # I o x o c? por tamano
     # newfile.write(bytearray(int(codificadoTotal[x:x + 8], 2) for x in range(0, len(codificadoTotal), 8)))
     # analizar, splitea el string en "8 char
     # chunks https://stackoverflow.com/questions/7290943/write-a-string-of-1s-and-0s-to-a-binary-file
