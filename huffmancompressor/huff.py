@@ -89,13 +89,12 @@ def compress(huff, args):
     #     newfile.write(struct.pack('!I', int(hd[x: x + 8], 2)))
     # Ahora se debe agregar un array de elementos de 6 bytes, cada uno de los cuales identifica un símbolo, su tamano y
     # su código Huffman. En nuestro caso estos datos estan en huff
-
+    symarray = ''
     for elem in huff:
-        symb = elem.symbol
-        size = len(elem.code)
-        code = elem.code
-        print(elem)
-
+        symb = elem.symbol  # este se agrega en 1 byte, ya esta en un byte
+        size = len(elem.code).to_bytes(1, byteorder='big')  # este se agrega en 1 byte
+        code = elem.code.encode()  # se agrega en 6 bytes aunque sea mas corto, como lo meto en 6 bytes??
+        print(code)
 
     for x in range(0, len(codificadoTotal), 8):
         newfile.write(struct.pack('!I', int(codificadoTotal[x: x + 8], 2)))
