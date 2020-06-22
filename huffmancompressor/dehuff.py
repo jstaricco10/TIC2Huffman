@@ -11,8 +11,9 @@ def main():
     # con el parser debo procesar el nombre del archivo
     args = parser.parse_args()
     file = open(args.file, 'rb')  # debemos controlar el caso de que el file no sea encontrado\
-
-    # frecuencias por tamano de cada uno de los codigos indicado en el cabezal, no?
+    # Debemos leer el sym array y armar un dicc de named tuples con cada codigo y su correspondiente simbolo
+    mn = file.read(2)
+    print(mn)
 
 
 if __name__ == '__main__':
