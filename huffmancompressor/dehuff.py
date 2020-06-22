@@ -2,6 +2,8 @@
 
 import argparse
 import os
+import struct
+from collections import namedtuple
 
 
 def main():
@@ -14,6 +16,17 @@ def main():
     # Debemos leer el sym array y armar un dicc de named tuples con cada codigo y su correspondiente simbolo
     mn = file.read(2)
     print(mn)
+    sym_arraylen = ord(file.read(1)) + 1
+    sym_arraysize = ord(file.read(1))
+    filelen = file.read(4)
+    print(sym_arraylen)
+    huffCode = namedtuple('huffCode', ' symbol code')
+    huff = []
+    for _ in range(sym_arraylen):
+        symbol = file.read(1)
+        size = file.read(1)
+        code = file.read(4)
+        print(code)
 
 
 if __name__ == '__main__':

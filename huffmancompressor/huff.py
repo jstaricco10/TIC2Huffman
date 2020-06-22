@@ -8,22 +8,12 @@ import struct
 
 # traducir huff a named tuple huff(symbol,code), named tuple no porque una tupla no permite asignacion, debe ser un dict
 
-""" Se debe hacer una clase para el Header?"""
-
-
-class Header:
-    def __init__(self, magic_nbr, sym_arraylen, sym_arraysize, filelen):
-        self.magic_nbr = magic_nbr  # 2 bytes
-        self.sym_arraylen = sym_arraylen  # 1 byte
-        self.sym_arraysize = sym_arraysize  # 1 byte
-        self.filelen = filelen  # 1 byte
-
 
 def encode(symb2freq):
     """Huffman encode the given dict mapping symbols to weights"""
     huffCode = namedtuple('huffCode', ' symbol code')
     lista = []
-    print(symb2freq)
+    # print(symb2freq)
     heap = [[wt, [sym, ""]] for sym, wt in symb2freq.items()]
     heapify(heap)
     while len(heap) > 1:
@@ -54,7 +44,7 @@ def compress(huff, args):
     # Datos del cabezal
     numeromagico = 'JA'
     sym_arraylen = len(huff)
-    sym_arraysize = len(huff[1])
+    sym_arraysize = len(huff[-1])
     filelen = os.stat(args.file).st_size
 
     # Armamos el codificado total, los datos en si comprimidos
@@ -82,19 +72,22 @@ def compress(huff, args):
     #         file.close()
     #         return
     newfile = open(args.file + ".huff", 'wb')
-    print(numeromagico.encode(encoding='ascii'))
-    newfile.write(struct.pack('ccbbI', numeromagico[0].encode(encoding='ascii'), numeromagico[1].encode(encoding='ascii'),
-                              sym_arraylen, sym_arraysize, filelen))
+    # print(sym_arraylen)
+    # print(sym_arraysize)
+    # print(filelen)
+    newfile.write(struct.pack('!ccBBI', numeromagico[0].encode(encoding='ascii'),
+                              numeromagico[1].encode(encoding='ascii'), sym_arraylen-1, sym_arraysize, filelen))
     # Ahora se debe agregar un array de elementos de 6 bytes, cada uno de los cuales identifica un símbolo, su tamano y
     # su código Huffman. En nuestro caso estos datos estan en huff
     for elem in huff:
         symb = elem.symbol
         size = len(elem.code)  # .to_bytes(1, byteorder='big')  este se agrega en 1 byte
         code = elem.code  # se agrega en 6 bytes aunque sea mas corto, como lo meto en 6 bytes??
-        newfile.write(struct.pack('cbI', symb, size, int(code)))
+        newfile.write(struct.pack('!cBI', symb, size, int(code)))
 
+    print(huff)
     for x in range(0, len(codificadoTotal), 8):
-        newfile.write(struct.pack('!I', int(codificadoTotal[x: x + 8], 2)))  # I o x o c? por tamano
+        newfile.write(struct.pack('!B', int(codificadoTotal[x: x + 7], 2)))  # I o x o c? por tamano
     newfile.close()
     file.close()
     return
