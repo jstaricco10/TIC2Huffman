@@ -26,7 +26,9 @@ def main():
         symbol = file.read(1)
         size = file.read(1)
         code = file.read(4)
-        print(code)
+        print(struct.unpack('>I ', code))
+        print("%03d" % (struct.unpack('>I ', code)[0],))
+        # print(int.from_bytes(code, byteorder='big'))
 
 
 if __name__ == '__main__':
