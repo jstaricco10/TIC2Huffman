@@ -15,21 +15,21 @@ def main():
     file = open(args.file, 'rb')  # debemos controlar el caso de que el file no sea encontrado\
     # Debemos leer el sym array y armar un dicc de named tuples con cada codigo y su correspondiente simbolo
     mn = file.read(2)
-    print(mn)
+#    print(mn)
     sym_arraylen = ord(file.read(1)) + 1
     sym_arraysize = ord(file.read(1))
     filelen = file.read(4)
-    print(sym_arraylen)
+#    print(sym_arraylen)
     huffCode = namedtuple('huffCode', ' symbol code')
     huff = []
     for _ in range(sym_arraylen):
         symbol = file.read(1)
         size = file.read(1)
+        size = int.from_bytes(size, byteorder='big')
         code = file.read(4)
-        print(struct.unpack('>I ', code))
-        print("%03d" % (struct.unpack('>I ', code)[0],))
-        # print(int.from_bytes(code, byteorder='big'))
-
+        print(size)
+        print(f'%0{size}d' % (struct.unpack('>I', code)[0],))
+    
 
 if __name__ == '__main__':
     main()
