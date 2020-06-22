@@ -75,7 +75,7 @@ def compress(huff, args):
     # print(sym_arraylen)
     # print(sym_arraysize)
     # print(filelen)
-    newfile.write(struct.pack('!ccBBI', numeromagico[0].encode(encoding='ascii'),
+    newfile.write(struct.pack('>ccBBI', numeromagico[0].encode(encoding='ascii'),
                               numeromagico[1].encode(encoding='ascii'), sym_arraylen-1, sym_arraysize, filelen))
     # Ahora se debe agregar un array de elementos de 6 bytes, cada uno de los cuales identifica un símbolo, su tamano y
     # su código Huffman. En nuestro caso estos datos estan en huff
@@ -83,11 +83,11 @@ def compress(huff, args):
         symb = elem.symbol
         size = len(elem.code)  # .to_bytes(1, byteorder='big')  este se agrega en 1 byte
         code = elem.code  # se agrega en 6 bytes aunque sea mas corto, como lo meto en 6 bytes??
-        newfile.write(struct.pack('!cBI', symb, size, int(code)))
+        newfile.write(struct.pack('>cBI', symb, size, int(code)))
 
     print(huff)
     for x in range(0, len(codificadoTotal), 8):
-        newfile.write(struct.pack('!B', int(codificadoTotal[x: x + 7], 2)))  # I o x o c? por tamano
+        newfile.write(struct.pack('>B', int(codificadoTotal[x: x + 8], 2)))  # I o x o c? por tamano
     newfile.close()
     file.close()
     return
