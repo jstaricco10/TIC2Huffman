@@ -51,16 +51,14 @@ def encode(symb2freq):
 
 def compress(huff, args):
     file = open(args.file, 'rb')
-    # print(huff)
-
-    # primero debemos hacer el cabezal
-    numeromagico = "DG"
+    # Datos del cabezal
+    numeromagico = 'JA'
     sym_arraylen = len(huff)
     sym_arraysize = len(huff[1])
     filelen = os.stat(args.file).st_size
 
-    # luego recorrer el file y poner en el nuevo archivo la coficacion al byte que le corresponda
-    codificadoTotal = ""
+    # Armamos el codificado total, los datos en si comprimidos
+    codificadoTotal = ''
     while True:
         b = file.read(1)
         if not b:
@@ -84,23 +82,19 @@ def compress(huff, args):
     #         file.close()
     #         return
     newfile = open(args.file + ".huff", 'wb')
-    # hd = Header('JA', len(huff), len(huff[-1].code), filelen)
-    # for x in range(2):  # 4 por ser el largo en bytes del hd
-    #     newfile.write(struct.pack('!I', int(hd[x: x + 8], 2)))
+    newfile.write(struct.pack('sbbI', numeromagico.encode(encoding='ascii'), sym_arraylen, sym_arraysize, filelen))
     # Ahora se debe agregar un array de elementos de 6 bytes, cada uno de los cuales identifica un símbolo, su tamano y
     # su código Huffman. En nuestro caso estos datos estan en huff
-    symarray = ''
     for elem in huff:
-        symb = elem.symbol  # este se agrega en 1 byte, ya esta en un byte
-        size = len(elem.code).to_bytes(1, byteorder='big')  # este se agrega en 1 byte
-        code = elem.code.encode()  # se agrega en 6 bytes aunque sea mas corto, como lo meto en 6 bytes??
-        print(code)
+        symb = elem.symbol.decode().encode(encoding='ascii')  # lo decodeamos a string y luego lo encodeamos de nueovo
+        # pero esta vez en ascii
+        size = len(elem.code)  # .to_bytes(1, byteorder='big')  este se agrega en 1 byte
+        code = elem.code  # se agrega en 6 bytes aunque sea mas corto, como lo meto en 6 bytes??
+        print(symb)
+        newfile.write(struct.pack('cbI', symb, size, int(code)))
 
     for x in range(0, len(codificadoTotal), 8):
         newfile.write(struct.pack('!I', int(codificadoTotal[x: x + 8], 2)))  # I o x o c? por tamano
-    # newfile.write(bytearray(int(codificadoTotal[x:x + 8], 2) for x in range(0, len(codificadoTotal), 8)))
-    # analizar, splitea el string en "8 char
-    # chunks https://stackoverflow.com/questions/7290943/write-a-string-of-1s-and-0s-to-a-binary-file
     newfile.close()
     file.close()
     return
