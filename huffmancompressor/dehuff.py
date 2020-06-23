@@ -10,6 +10,8 @@ def decompress(huff, args, sym_arraylen):
     file = open(args.file, 'rb')
     decodificadoTotal = ''
     file.seek(8 + 6 * sym_arraylen)  # ignoramos el cabezal y el sym array
+    byte = struct.unpack('>B', file.read(1))[0]  # nos quedamos con la posicion 0 ya que unpack nos da una tupla
+    print(bin(byte))
     # while True:
     #     byte = file.read(1)
     #     print(byte)
