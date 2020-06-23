@@ -9,47 +9,28 @@ from collections import namedtuple
 def decompress(huff, args, sym_arraylen, filelen):
     file = open(args.file, 'rb')
     file.seek(8 + 6 * sym_arraylen)  # ignoramos el cabezal y el sym array
-#    byte = struct.unpack('>B', file.read(1))[0]  # nos quedamos con la posicion 0 ya que unpack nos da una tupla
-#    print(type(bin(byte)))
-#    byte2 = file.read(1)
-#    print(type(byte2))
+
     codificado = ''
     ceros = '00000000'
+ 
     while True:
-        b = file.read(1)
+        b = file.read(1)        # lee byts y cuando se acaba corta
         if not b:
             break
         byte = struct.unpack('>B',b)[0]
-        byte = str(bin(byte)).lstrip('0b')
+        byte = str(bin(byte)).lstrip('0b')      #se saca el 0b de binario
         end = 8-len(byte)
-        byte = ceros[0:end] + byte
-        codificado += byte
+        byte = ceros[0:end] + byte              #se ponene los ceros a la izquierda de cada byte
+        codificado += byte                      #se pone cada byte en un string todos seguidos
     newfile = open(args.file[:-4] + "orig", 'wb')
     sizeOp = 0
-    while sizeOp != filelen:    #filelen
+    while sizeOp != filelen:        #se hace hasta tener la misma cantidad de caracteres que en el archivo original
         for cod in huff:
-            if codificado.startswith(cod[2]):
+            if codificado.startswith(cod[2]):     #si la cadena codificada empieza con uno de los codigos huff se agrega la letra de dicho codigo al newfile
                 newfile.write(cod[0])
-                codificado = codificado[cod[1]:]
+                codificado = codificado[cod[1]:]       #se saca el codigo huff de la letra ya escrita en el newfile
                 sizeOp +=1
                 break
-                
-#    while True:
-#        byte = file.read(1)
-#        print(byte)
-#        if not byte:
-#            break
-#        for h in huff:
-#            codificado = ''
-#            for bit in byte:
-#                #print(bin(byte))
-#                codificado += bit.decode()
-#                if codificado == h.code:
-#                    decodificadoTotal += h.symbol
-#                    codificado = ''
-
-
-
     newfile.close()
     file.close()
     pass
