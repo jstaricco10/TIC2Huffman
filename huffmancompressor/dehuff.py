@@ -37,28 +37,31 @@ def decompress(huff, args, sym_arraylen, filelen):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Parsea los datos pasados en consola')
-    parser.add_argument('file', help='Archivo a descomprimir')
+    parser = argparse.ArgumentParser(description='Desomprime archivos usando un arbol de Huffman')
+    parser.add_argument('file', help='Nombre del archivo a descomprimir')
     parser.add_argument('-v', '--verbose', help='Imprime informacion del avance del proceso', action='store_true')
     # con el parser debo procesar el nombre del archivo
     args = parser.parse_args()
-    file = open(args.file, 'rb')  # debemos controlar el caso de que el file no sea encontrado\
-    # Debemos leer el sym array y armar un dicc de named tuples con cada codigo y su correspondiente simbolo
-    mn = file.read(2)
-    sym_arraylen = ord(file.read(1)) + 1
-    sym_arraysize = ord(file.read(1))
-    filelen = struct.unpack('!i', file.read(4))[0]
-    huffCode = namedtuple('huffCode', ' symbol size code')
-    huff = []
-    for _ in range(sym_arraylen):
-        symbol = file.read(1)
-        size = file.read(1)
-        size = int.from_bytes(size, byteorder='big')
-        code = file.read(4)
-        huff.append(huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0],)))
-    decompress(huff, args, sym_arraylen, filelen)
-    file.close()
-
+    if args.file.endswith(".huff"):
+    
+        file = open(args.file, 'rb')  # debemos controlar el caso de que el file no sea encontrado\
+        # Debemos leer el sym array y armar un dicc de named tuples con cada codigo y su correspondiente simbolo
+        mn = file.read(2)
+        sym_arraylen = ord(file.read(1)) + 1
+        sym_arraysize = ord(file.read(1))
+        filelen = struct.unpack('!i', file.read(4))[0]
+        huffCode = namedtuple('huffCode', ' symbol size code')
+        huff = []
+        for _ in range(sym_arraylen):
+            symbol = file.read(1)
+            size = file.read(1)
+            size = int.from_bytes(size, byteorder='big')
+            code = file.read(4)
+            huff.append(huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0],)))
+        decompress(huff, args, sym_arraylen, filelen)
+        file.close()
+    else:
+        print("el archivo debe terminar en .huff para ser descompreso")
 
 if __name__ == '__main__':
     main()

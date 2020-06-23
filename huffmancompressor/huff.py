@@ -46,7 +46,6 @@ def compress(huff, args):
     sym_arraylen = len(huff)
     sym_arraysize = len(huff[-1])
     filelen = os.stat(args.file).st_size
-    print(filelen)
 
     # Armamos el codificado total, los datos en si comprimidos
     codificadoTotal = ''
@@ -86,7 +85,6 @@ def compress(huff, args):
         code = elem.code  # se agrega en 6 bytes aunque sea mas corto, como lo meto en 6 bytes??
         newfile.write(struct.pack('>cBI', symb, size, int(code)))
 
-    print(huff)
     for x in range(0, len(codificadoTotal), 8):
         newfile.write(struct.pack('>B', int(codificadoTotal[x: x + 8], 2)))  # I o x o c? por tamano
     newfile.close()
@@ -95,9 +93,9 @@ def compress(huff, args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Parsea los datos pasados en consola')
-    parser.add_argument('file', help='Archivo a comprimir')
-    parser.add_argument('-f', '--force', help='Fuerza compresion aunque aumente el tamano', action='store_true')
+    parser = argparse.ArgumentParser(description='Comprime archivos usando un arbol de Huffman')
+    parser.add_argument('file', help='Nombre del archivo a comprimir')
+    parser.add_argument('-f', '--force', help='Fuerza compresion aunque el archivo resultante sea mas grande', action='store_true')
     parser.add_argument('-v', '--verbose', help='Imprime informacion del avance del proceso', action='store_true')
     args = parser.parse_args()
     file = open(args.file, 'rb')
