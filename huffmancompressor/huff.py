@@ -46,6 +46,7 @@ def compress(huff, args):
     sym_arraylen = len(huff)
     sym_arraysize = len(huff[-1])
     filelen = os.stat(args.file).st_size
+    print(filelen)
 
     # Armamos el codificado total, los datos en si comprimidos
     codificadoTotal = ''
