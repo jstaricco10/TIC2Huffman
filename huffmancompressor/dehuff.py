@@ -6,10 +6,24 @@ import struct
 from collections import namedtuple
 
 
-def decompress(huff, args):
+def decompress(huff, args, sym_arraylen):
     file = open(args.file, 'rb')
     decodificadoTotal = ''
-
+    file.seek(8 + 6 * sym_arraylen)  # ignoramos el cabezal y el sym array
+    # while True:
+    #     byte = file.read(1)
+    #     print(byte)
+    #     if not byte:
+    #         break
+    #     for h in huff:
+    #         codificado = ''
+    #         for bit in byte:
+    #             print(bin(byte))
+    #             codificado += bit.decode()
+    #             if codificado == h.code:
+    #                 decodificadoTotal += h.symbol
+    #                 codificado = ''
+    print(decodificadoTotal)
     newfile = open(args.file[:-4] + "orig", 'wb')
 
     newfile.close()
@@ -38,7 +52,7 @@ def main():
         code = file.read(4)
         huff.append(huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0],)))
     print(huff)
-    decompress(huff, args)
+    decompress(huff, args, sym_arraylen)
 
 
 if __name__ == '__main__':
