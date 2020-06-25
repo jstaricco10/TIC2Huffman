@@ -6,6 +6,7 @@ import argparse
 import os
 import struct
 
+
 # traducir huff a named tuple huff(symbol,code), named tuple no porque una tupla no permite asignacion, debe ser un dict
 
 
@@ -36,10 +37,8 @@ def encode(symb2freq):
     return lista
 
 
-""" Comprimimos el archivo en uno nuevo con .huf"""
-
-
 def compress(huff, args):
+    """ Comprimimos el archivo en uno nuevo con .huf"""
     file = open(args.file, 'rb')
     # Datos del cabezal
     numeromagico = 'JA'
@@ -61,22 +60,20 @@ def compress(huff, args):
     cantAAgregar = 8 - (len(codificadoTotal) % 8)
     for _ in range(cantAAgregar):
         codificadoTotal += '0'
-    if len(codificadoTotal) / 8 > filelen and not args.force:
-        file.close()
-        return
-
-    # comentado para trabajar mientras con archivos chicos sin -f
-    # if not args.force:
-    #     if filelen < len(codificadoTotal):
-    #         print("El archivo resultante comprimido es mas grande que el dado.")
-    #         file.close()
-    #         return
+    # El largo del archivo comprimido es el largo del symarray por el tamano de cada uno de sus elementos mas el largo
+    # del bit stream (que es el codificado total)
+    compressedfilelen = len(codificadoTotal) + sym_arraylen * sym_arraysize
+    if not args.force:
+        if filelen < compressedfilelen:
+            print("El archivo resultante comprimido es mas grande que el dado.")
+            file.close()
+            return -1
     newfile = open(args.file + ".huff", 'wb')
     # print(sym_arraylen)
     # print(sym_arraysize)
     # print(filelen)
     newfile.write(struct.pack('>ccBBI', numeromagico[0].encode(encoding='ascii'),
-                              numeromagico[1].encode(encoding='ascii'), sym_arraylen-1, sym_arraysize, filelen))
+                              numeromagico[1].encode(encoding='ascii'), sym_arraylen - 1, sym_arraysize, filelen))
     # Ahora se debe agregar un array de elementos de 6 bytes, cada uno de los cuales identifica un símbolo, su tamano y
     # su código Huffman. En nuestro caso estos datos estan en huff
     for elem in huff:
@@ -89,13 +86,14 @@ def compress(huff, args):
         newfile.write(struct.pack('>B', int(codificadoTotal[x: x + 8], 2)))  # I o x o c? por tamano
     newfile.close()
     file.close()
-    return
+    return compressedfilelen
 
 
 def main():
     parser = argparse.ArgumentParser(description='Comprime archivos usando un arbol de Huffman')
     parser.add_argument('file', help='Nombre del archivo a comprimir')
-    parser.add_argument('-f', '--force', help='Fuerza compresion aunque el archivo resultante sea mas grande', action='store_true')
+    parser.add_argument('-f', '--force', help='Fuerza compresion aunque el archivo resultante sea mas grande',
+                        action='store_true')
     parser.add_argument('-v', '--verbose', help='Imprime informacion del avance del proceso', action='store_true')
     args = parser.parse_args()
     file = open(args.file, 'rb')
@@ -111,7 +109,13 @@ def main():
         print("Symbol\tWeight\tHuffman Code")
         for p in huff:
             print("%s\t%s\t%s" % (p.symbol, symb2freq[p.symbol], p.code))
-    compress(huff, args)
+    newLen = compress(huff, args)
+    if args.verbose:
+        filelen = os.stat(args.file).st_size
+        print("El tamano viejo del archivo era de:")
+        print(str(filelen/8) + " bytes.")
+        print("El tamano del archivo comprimido .huff es de:")
+        print(str(newLen/8) + " bytes.")
 
 
 if __name__ == '__main__':
