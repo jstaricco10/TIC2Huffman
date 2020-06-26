@@ -64,14 +64,16 @@ def main():
     parser.add_argument('-v', '--verbose', help='Imprime informacion del avance del proceso', action='store_true')
     # con el parser debo procesar el nombre del archivo
     args = parser.parse_args()
-    if args.file.endswith(".huff"):
-        file = open(args.file, 'rb')  # debemos controlar el caso de que el file no sea encontrado\
+    if not args.file.endswith(".huff"):
+        print("el archivo debe terminar en .huff para ser descompreso")
+        return
+    with open(args.file, 'rb') as file:  # debemos controlar el caso de que el file no sea encontrado\
         # Debemos leer el sym array y armar un dicc de named tuples con cada codigo y su correspondiente simbolo
         mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
         mn = mmp.read(2).decode()  # se saca el magic number del cabezal
         if mn != 'JA':  # se comprueba que el archivo empiece con magic number
-            return print(
-                "El archivo no es valido para descomprimir, tiene un numero magico que no es el de la compresion.")
+            print("El archivo no es valido para descomprimir, tiene un numero magico que no es el de la compresion.")
+            return
         sym_arraylen = ord(mmp.read(1)) + 1  # se guardan el resto de datos del cabezal
         sym_arraysize = ord(mmp.read(1))
         filelen = struct.unpack('!i', mmp.read(4))[0]
@@ -93,8 +95,6 @@ def main():
             print(f"El tamano del archivo comprimido era de: {os.stat(args.file).st_size} bytes")
             print(f"El tamano del archivo descomprimido es de: {str(decompressedlen)} bytes")
         file.close()
-    else:
-        print("el archivo debe terminar en .huff para ser descompreso")
 
 
 if __name__ == '__main__':
