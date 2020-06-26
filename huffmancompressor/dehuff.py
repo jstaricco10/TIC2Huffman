@@ -8,6 +8,7 @@ from collections import namedtuple
 
 
 def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
+    # print(huff)
     file = open(args.file, 'rb')
     file.seek(8 + 6 * sym_arraylen)  # ignoramos el cabezal y el sym array
 
@@ -25,22 +26,21 @@ def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
         codificado += byte  # se pone cada byte en un string todos seguidos
     newfile = open(args.file[:-4] + "orig", 'wb')
     decod = ''
-    for _ in range(filelen):       # se hace hasta tener la misma cantidad de caracteres que en el archivo original
+    for _ in range(filelen):  # se hace hasta tener la misma cantidad de caracteres que en el archivo original
         for cod in huff:
-            if codificado.startswith(cod[2]):
+            if codificado.startswith(cod):
                 # si la cadena codificada empieza con uno de los codigos huff se agrega la letra de dicho codigo al
                 # newfile
-                decod += cod[0].decode()  #esto se usa para el verbose no mas, va imprimiendo el decodificado
-                newfile.write(cod[0])
-                codificado = codificado[cod[1]:]  # se saca el codigo huff de la letra ya escrita en el newfile
+                h = huff.get(cod)
+                decod += h.symbol.decode()  #esto se usa para el verbose no mas, va imprimiendo el decodificado
+                newfile.write(h.symbol)
+                codificado = codificado[h.size:]  # se saca el codigo huff de la letra ya escrita en el newfile
 #                if args.verbose:
 #                    print(cod[0].decode())
                 break
-#    newfile.close()
     file.close()
     if args.verbose:
         print(decod)
-#    newfile.seek(0,2) # move the cursor to the end of the file
     size = newfile.tell()
     newfile.close()
     return size
@@ -64,13 +64,13 @@ def main():
         sym_arraysize = ord(mmp.read(1))
         filelen = struct.unpack('!i', mmp.read(4))[0]
         huffCode = namedtuple('huffCode', 'symbol size code')
-        huff = []
+        huff = {}
         for _ in range(sym_arraylen):
             symbol = mmp.read(1)
             size = mmp.read(1)
             size = int.from_bytes(size, byteorder='big')
             code = mmp.read(4)
-            huff.append(huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0])))
+            huff[f'%0{size}d' % (struct.unpack('>I', code)[0])] = (huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0])))
         decompressedlen = decompress(huff, args, sym_arraylen, filelen, sym_arraysize)
         if args.verbose:
             print(f"El tamano del archivo antes de comprimido era de: {str(filelen)} bytes")
