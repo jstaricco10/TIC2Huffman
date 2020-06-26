@@ -56,21 +56,22 @@ def compress(huff, args, filelen):
                 codificado = h.code
                 codificadoTotal += codificado
     # debemos agregar en cod total los 0 al final que falten para tener tamano multiplo de 8
+    print(codificadoTotal)
     cantAAgregar = 8 - (len(codificadoTotal) % 8)
     for _ in range(cantAAgregar):
         codificadoTotal += '0'
     # El largo del archivo comprimido es el largo del symarray por el tamano de cada uno de sus elementos mas el largo
     # del bit stream (que es el codificado total)
     compressedfilelen = (len(codificadoTotal) + sym_arraylen * sym_arraysize)/8
-    
+    print(compressedfilelen)
     if not args.force:
         if filelen < compressedfilelen:
             print("El archivo resultante comprimido es mas grande que el dado.")
             file.close()
             return -1
     newfile = open(args.file + ".huff", 'wb')
-    # print(sym_arraylen)
-    # print(sym_arraysize)
+    print(sym_arraylen)
+    print(sym_arraysize)
     # print(filelen)
     newfile.write(struct.pack('>ccBBI', numeromagico[0].encode(encoding='ascii'),
                               numeromagico[1].encode(encoding='ascii'), sym_arraylen - 1, sym_arraysize, filelen))
@@ -85,10 +86,12 @@ def compress(huff, args, filelen):
 
     for x in range(0, len(codificadoTotal), 8):
         newfile.write(struct.pack('>B', int(codificadoTotal[x: x + 8], 2)))  # I o x o c? por tamano
+    
+    size = newfile.tell()
     newfile.close()
     file.close()
 
-    return compressedfilelen
+    return size
 
 
 def main():
