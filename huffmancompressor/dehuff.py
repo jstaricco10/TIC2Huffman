@@ -25,23 +25,25 @@ def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
     newfile = open(args.file[:-4] + "orig", 'wb')
     sizeOp = 0
     decod = ''
-    while sizeOp != filelen:  # se hace hasta tener la misma cantidad de caracteres que en el archivo original
+    for _ in range (filelen):       # se hace hasta tener la misma cantidad de caracteres que en el archivo original
         for cod in huff:
             if codificado.startswith(cod[2]):
                 # si la cadena codificada empieza con uno de los codigos huff se agrega la letra de dicho codigo al
                 # newfile
-                decod += cod[0].decode()
+                decod += cod[0].decode()  #esto se usa para el verbose no mas, va imprimiendo el decodificado
                 newfile.write(cod[0])
                 codificado = codificado[cod[1]:]  # se saca el codigo huff de la letra ya escrita en el newfile
-                sizeOp += 1
-                if args.verbose:
-                    print(cod[0].decode())
+#                if args.verbose:
+#                    print(cod[0].decode())
                 break
-    newfile.close()
+#    newfile.close()
     file.close()
     if args.verbose:
         print(decod)
-    return 0
+#    newfile.seek(0,2) # move the cursor to the end of the file
+    size = newfile.tell()
+    newfile.close
+    return size
 
 
 def main():
@@ -70,10 +72,9 @@ def main():
             huff.append(huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0],)))
         decompressedlen = decompress(huff, args, sym_arraylen, filelen, sym_arraysize)
         if args.verbose:
-            print("El tamano del archivo comprimido era de: ")
-            print(str(filelen/8))
-            print("El tamano del archivo descomprimido era de: ")
-            print(str(decompressedlen/8))
+            print(f"El tamano del archivo antes de comprimido era de: {str(filelen)} bytes")
+            print(f"El tamano del archivo comprimido era de: {os.stat(args.file).st_size} bytes")
+            print(f"El tamano del archivo descomprimido es de: {str(decompressedlen)} bytes")
         file.close()
     else:
         print("el archivo debe terminar en .huff para ser descompreso")
