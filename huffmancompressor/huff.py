@@ -56,23 +56,19 @@ def compress(huff, args, filelen):
                 codificado = h.code
                 codificadoTotal += codificado
     # debemos agregar en cod total los 0 al final que falten para tener tamano multiplo de 8
-    print(codificadoTotal)
     cantAAgregar = 8 - (len(codificadoTotal) % 8)
     for _ in range(cantAAgregar):
         codificadoTotal += '0'
     # El largo del archivo comprimido es el largo del symarray por el tamano de cada uno de sus elementos mas el largo
     # del bit stream (que es el codificado total)
-    compressedfilelen = (len(codificadoTotal) + sym_arraylen * sym_arraysize)/8
-    print(compressedfilelen)
+    compressedfilelen = (len(codificadoTotal)/8 + len(huff)*6) +8 # 8 bytes ocupa el cabezal, cada entrada en huff ocupa 6 bytes y se suma los bytes del codificado
     if not args.force:
         if filelen < compressedfilelen:
             print("El archivo resultante comprimido es mas grande que el dado.")
             file.close()
             return -1
     newfile = open(args.file + ".huff", 'wb')
-    print(sym_arraylen)
-    print(sym_arraysize)
-    # print(filelen)
+
     newfile.write(struct.pack('>ccBBI', numeromagico[0].encode(encoding='ascii'),
                               numeromagico[1].encode(encoding='ascii'), sym_arraylen - 1, sym_arraysize, filelen))
     # Ahora se debe agregar un array de elementos de 6 bytes, cada uno de los cuales identifica un símbolo, su tamano y
@@ -86,12 +82,11 @@ def compress(huff, args, filelen):
 
     for x in range(0, len(codificadoTotal), 8):
         newfile.write(struct.pack('>B', int(codificadoTotal[x: x + 8], 2)))  # I o x o c? por tamano
-    
-    size = newfile.tell()
+
     newfile.close()
     file.close()
 
-    return size
+    return compressedfilelen
 
 
 def main():
@@ -113,14 +108,15 @@ def main():
         symb2freq[b] += 1
     huff = encode(symb2freq)
     file.close()
-    if args.verbose:
-        print("Symbol\tWeight\tHuffman Code")
-        for p in huff:
-            print("%s\t%s\t%s" % (p.symbol, symb2freq[p.symbol], p.code))
     newLen = compress(huff, args, filelen)
-    if args.verbose:
-        print(f"El tamano viejo del archivo era de: {filelen} bytes")
-        print(f"El tamano del archivo comprimido .huff es de: {newLen} bytes")
+    if newLen != -1: 
+        if args.verbose:
+            print("Symbol\tWeight\tHuffman Code")
+            for p in huff:
+                print("%s\t%s\t%s" % (p.symbol, symb2freq[p.symbol], p.code))
+        if args.verbose:
+            print(f"El tamano viejo del archivo era de: {filelen} bytes")
+            print(f"El tamano del archivo comprimido .huff es de: {newLen} bytes")
 
 
 if __name__ == '__main__':
