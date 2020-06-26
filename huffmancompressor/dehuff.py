@@ -71,7 +71,6 @@ def main():
             size = mmp.read(1)
             size = int.from_bytes(size, byteorder='big')
             code = mmp.read(4)
-            print(code)
             huff.append(huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0])))
         decompressedlen = decompress(huff, args, sym_arraylen, filelen, sym_arraysize)
         if args.verbose:
