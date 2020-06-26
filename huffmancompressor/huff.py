@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 
-
 from heapq import heappush, heappop, heapify
 from collections import defaultdict, namedtuple
 import argparse
@@ -11,7 +10,6 @@ import mmap
 
 
 def encode(symb2freq):
-    
     """Huffman encode the given dict mapping symbols to weights
 
     Returns:
