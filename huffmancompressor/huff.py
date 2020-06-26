@@ -5,6 +5,7 @@ from collections import defaultdict, namedtuple
 import argparse
 import os
 import struct
+import mmap
 
 
 # traducir huff a named tuple huff(symbol,code), named tuple no porque una tupla no permite asignacion, debe ser un dict
@@ -40,6 +41,7 @@ def encode(symb2freq):
 def compress(huff, args, filelen):
     """ Comprimimos el archivo en uno nuevo con .huf"""
     file = open(args.file, 'rb')
+    mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
     # Datos del cabezal
     numeromagico = 'JA'
     sym_arraylen = len(huff)
@@ -48,7 +50,7 @@ def compress(huff, args, filelen):
     # Armamos el codificado total, los datos en si comprimidos
     codificadoTotal = ''
     while True:
-        b = file.read(1)
+        b = mmp.read(1)
         if not b:
             break
         for h in huff:
@@ -99,10 +101,11 @@ def main():
     
     filelen = os.path.getsize(args.file)
     file = open(args.file, 'rb')
+    mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
     symb2freq = defaultdict(int)
     
     while True:
-        b = file.read(1)
+        b = mmp.read(1)
         if not b:
             break
         symb2freq[b] += 1

@@ -10,13 +10,14 @@ from collections import namedtuple
 def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
     # print(huff)
     file = open(args.file, 'rb')
-    file.seek(8 + 6 * sym_arraylen)  # ignoramos el cabezal y el sym array
+    mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
+    mmp.seek(8 + 6 * sym_arraylen)  # ignoramos el cabezal y el sym array
 
     codificado = ''
     ceros = '00000000'
 
     while True:
-        b = file.read(1)  # lee byts y cuando se acaba corta
+        b = mmp.read(1)  # lee byts y cuando se acaba corta
         if not b:
             break
         byte = struct.unpack('>B', b)[0]
@@ -53,7 +54,6 @@ def main():
     # con el parser debo procesar el nombre del archivo
     args = parser.parse_args()
     if args.file.endswith(".huff"):
-
         file = open(args.file, 'rb')  # debemos controlar el caso de que el file no sea encontrado\
         # Debemos leer el sym array y armar un dicc de named tuples con cada codigo y su correspondiente simbolo
         mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
