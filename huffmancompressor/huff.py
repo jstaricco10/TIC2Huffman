@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+
+
 from heapq import heappush, heappop, heapify
 from collections import defaultdict, namedtuple
 import argparse
@@ -9,7 +11,12 @@ import mmap
 
 
 def encode(symb2freq):
-    """Huffman encode the given dict mapping symbols to weights"""
+    
+    """Huffman encode the given dict mapping symbols to weights
+
+    Returns:
+        [list]: [retorna una lista con los caracteres y su huff code corespondiente]
+    """
     huffCode = namedtuple('huffCode', ' symbol code')
     lista = []
     heap = [[wt, [sym, ""]] for sym, wt in symb2freq.items()]
@@ -30,12 +37,22 @@ def encode(symb2freq):
         else:
             pop = elem
             lista.append(huffCode(pop[0], pop[1]))
-    # ordeno por codigo??, con item y atr getter de la letra
     return lista
 
 
 def compress(huff, args, filelen):
-    """ Comprimimos el archivo en uno nuevo con .huff"""
+    """compress Comprimimos el archivo en uno nuevo con .huff
+
+    Args:
+        huff ([list]): una lista con los caracteres y su huff code corespondiente
+        args : argumentos pasados al programa, obligatoriamente un archivo a comprimir y 
+               opcionalmente flags: -f para comprimir aunque el compreso sea mas grande
+               y -v para ver detalles de la compresion
+        filelen ([int]): tamano en bytes del archivo a comprimir
+
+    Returns:
+        [int]: tamano en bytes del archivo compresso
+    """
     try:
         with open(args.file, 'rb') as file:
             mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)

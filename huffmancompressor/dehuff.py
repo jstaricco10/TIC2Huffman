@@ -8,7 +8,18 @@ from collections import namedtuple
 
 
 def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
-    """ Descompresion del archivo .huff en un nuevo .orig"""
+    """decompress: Descompresion del archivo .huff en un nuevo .orig
+
+    Args:
+        huff ([type]): [description]
+        args ([type]): [description]
+        sym_arraylen ([type]): [description]
+        filelen ([type]): [description]
+        sym_arraysize ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     # print(huff)
     with open(args.file, 'rb') as file:
         mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
@@ -16,7 +27,6 @@ def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
 
         codificado = ''
         ceros = '00000000'
-
         while True:
             b = mmp.read(1)  # lee byts y cuando se acaba corta
             if not b:
@@ -27,30 +37,18 @@ def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
             byte = ceros[0:end] + byte  # se ponene los ceros a la izquierda de cada byte
             codificado += byte  # se pone cada byte en un string todos seguidos
         newfile = open(args.file[:-4] + "orig", 'wb')
-        decod = ''
-#        for _ in range(filelen):  # se hace hasta tener la misma cantidad de caracteres que en el archivo original
-#            for cod in huff:
-#                if codificado.startswith(cod):
-#                    # si la cadena codificada empieza con uno de los codigos huff se agrega la letra de dicho codigo al
-                    # newfile
-#                    h = huff.get(cod)
-#                    decod += h.symbol.decode()  #esto se usa para el verbose no mas, va imprimiendo el decodificado
-#                    newfile.write(h.symbol)
-#                    codificado = codificado[h.size:]  # se saca el codigo huff de la letra ya escrita en el newfile
-#                    break
-        
+
         codigo = ''
         for dig in codificado:
-            codigo = codigo + dig
-            for h in huff:
-                tuplaHuff = huff.get(h)
-                if codigo == tuplaHuff.code:
+            codigo = codigo + dig       
+            if codigo in huff.keys():
+                tuplaHuff = huff.get(codigo)
+                if codigo == tuplaHuff.code and newfile.tell() != filelen: # la ultima parte del if hace q no se tengan en cuenta los bits de relleno
                     newfile.write(tuplaHuff.symbol)
                     codigo = ''
                 
         file.close()
-#        if args.verbose:
-#            print(decod)
+
         size = newfile.tell()
         newfile.close()
         return size
