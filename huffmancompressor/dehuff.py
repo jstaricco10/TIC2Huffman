@@ -8,7 +8,7 @@ from collections import namedtuple
 
 
 def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
-    """ Descompresion del archivo en un nuevo .orig"""
+    """ Descompresion del archivo .huff en un nuevo .orig"""
     # print(huff)
     with open(args.file, 'rb') as file:
         mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
