@@ -28,16 +28,26 @@ def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
             codificado += byte  # se pone cada byte en un string todos seguidos
         newfile = open(args.file[:-4] + "orig", 'wb')
         decod = ''
-        for _ in range(filelen):  # se hace hasta tener la misma cantidad de caracteres que en el archivo original
-            for cod in huff:
-                if codificado.startswith(cod):
-                    # si la cadena codificada empieza con uno de los codigos huff se agrega la letra de dicho codigo al
+#        for _ in range(filelen):  # se hace hasta tener la misma cantidad de caracteres que en el archivo original
+#            for cod in huff:
+#                if codificado.startswith(cod):
+#                    # si la cadena codificada empieza con uno de los codigos huff se agrega la letra de dicho codigo al
                     # newfile
-                    h = huff.get(cod)
+#                    h = huff.get(cod)
 #                    decod += h.symbol.decode()  #esto se usa para el verbose no mas, va imprimiendo el decodificado
-                    newfile.write(h.symbol)
-                    codificado = codificado[h.size:]  # se saca el codigo huff de la letra ya escrita en el newfile
-                    break
+#                    newfile.write(h.symbol)
+#                    codificado = codificado[h.size:]  # se saca el codigo huff de la letra ya escrita en el newfile
+#                    break
+        
+        codigo = ''
+        for dig in codificado:
+            codigo = codigo + dig
+            for h in huff:
+                tuplaHuff = huff.get(h)
+                if codigo == tuplaHuff.code:
+                    newfile.write(tuplaHuff.symbol)
+                    codigo = ''
+                
         file.close()
 #        if args.verbose:
 #            print(decod)
