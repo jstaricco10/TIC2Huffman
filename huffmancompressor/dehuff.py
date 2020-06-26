@@ -24,9 +24,8 @@ def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
         byte = ceros[0:end] + byte  # se ponene los ceros a la izquierda de cada byte
         codificado += byte  # se pone cada byte en un string todos seguidos
     newfile = open(args.file[:-4] + "orig", 'wb')
-    sizeOp = 0
     decod = ''
-    for _ in range (filelen):       # se hace hasta tener la misma cantidad de caracteres que en el archivo original
+    for _ in range(filelen):       # se hace hasta tener la misma cantidad de caracteres que en el archivo original
         for cod in huff:
             if codificado.startswith(cod[2]):
                 # si la cadena codificada empieza con uno de los codigos huff se agrega la letra de dicho codigo al
@@ -43,7 +42,7 @@ def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
         print(decod)
 #    newfile.seek(0,2) # move the cursor to the end of the file
     size = newfile.tell()
-    newfile.close
+    newfile.close()
     return size
 
 
