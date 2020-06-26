@@ -34,15 +34,13 @@ def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
                     # si la cadena codificada empieza con uno de los codigos huff se agrega la letra de dicho codigo al
                     # newfile
                     h = huff.get(cod)
-                    decod += h.symbol.decode()  #esto se usa para el verbose no mas, va imprimiendo el decodificado
+#                    decod += h.symbol.decode()  #esto se usa para el verbose no mas, va imprimiendo el decodificado
                     newfile.write(h.symbol)
                     codificado = codificado[h.size:]  # se saca el codigo huff de la letra ya escrita en el newfile
-    #                if args.verbose:
-    #                    print(cod[0].decode())
                     break
         file.close()
-        if args.verbose:
-            print(decod)
+#        if args.verbose:
+#            print(decod)
         size = newfile.tell()
         newfile.close()
         return size
