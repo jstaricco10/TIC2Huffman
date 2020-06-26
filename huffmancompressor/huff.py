@@ -39,56 +39,56 @@ def encode(symb2freq):
 
 
 def compress(huff, args, filelen):
-    """ Comprimimos el archivo en uno nuevo con .huf"""
-    file = open(args.file, 'rb')
-    mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
-    # Datos del cabezal
-    numeromagico = 'JA'
-    sym_arraylen = len(huff)
-    sym_arraysize = len(huff[-1])
+    """ Comprimimos el archivo en uno nuevo con .huff"""
+    with open(args.file, 'rb') as file:
+        mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
+        # Datos del cabezal
+        numeromagico = 'JA'
+        sym_arraylen = len(huff)
+        sym_arraysize = len(huff[-1])
 
-    # Armamos el codificado total, los datos en si comprimidos
-    codificadoTotal = ''
-    while True:
-        b = mmp.read(1)
-        if not b:
-            break
-        for h in huff:
-            if b == h.symbol:
-                codificado = h.code
-                codificadoTotal += codificado
-    # debemos agregar en cod total los 0 al final que falten para tener tamano multiplo de 8
-    cantAAgregar = 8 - (len(codificadoTotal) % 8)
-    for _ in range(cantAAgregar):
-        codificadoTotal += '0'
-    # El largo del archivo comprimido es el largo del symarray por el tamano de cada uno de sus elementos mas el largo
-    # del bit stream (que es el codificado total)
-    compressedfilelen = (len(codificadoTotal)/8 + len(huff)*6) +8 # 8 bytes ocupa el cabezal, cada entrada en huff ocupa 6 bytes y se suma los bytes del codificado
-    if not args.force:
-        if filelen < compressedfilelen:
-            print("El archivo resultante comprimido es mas grande que el dado.")
-            file.close()
-            return -1
-    newfile = open(args.file + ".huff", 'wb')
+        # Armamos el codificado total, los datos en si comprimidos
+        codificadoTotal = ''
+        while True:
+            b = mmp.read(1)
+            if not b:
+                break
+            for h in huff:
+                if b == h.symbol:
+                    codificado = h.code
+                    codificadoTotal += codificado
+        # debemos agregar en cod total los 0 al final que falten para tener tamano multiplo de 8
+        cantAAgregar = 8 - (len(codificadoTotal) % 8)
+        for _ in range(cantAAgregar):
+            codificadoTotal += '0'
+        # El largo del archivo comprimido es el largo del symarray por el tamano de cada uno de sus elementos mas el largo
+        # del bit stream (que es el codificado total)
+        compressedfilelen = (len(codificadoTotal)/8 + len(huff)*6) +8 # 8 bytes ocupa el cabezal, cada entrada en huff ocupa 6 bytes y se suma los bytes del codificado
+        if not args.force:
+            if filelen < compressedfilelen:
+                print("El archivo resultante comprimido es mas grande que el dado.")
+                file.close()
+                return -1
+        newfile = open(args.file + ".huff", 'wb')
 
-    newfile.write(struct.pack('>ccBBI', numeromagico[0].encode(encoding='ascii'),
-                              numeromagico[1].encode(encoding='ascii'), sym_arraylen - 1, sym_arraysize, filelen))
-    # Ahora se debe agregar un array de elementos de 6 bytes, cada uno de los cuales identifica un símbolo, su tamano y
-    # su código Huffman. En nuestro caso estos datos estan en huff
-    for elem in huff:
-        symb = elem.symbol
-        size = len(elem.code)  # .to_bytes(1, byteorder='big')  este se agrega en 1 byte
-        code = elem.code  # se agrega en 6 bytes aunque sea mas corto, como lo meto en 6 bytes??
-#        print(symb,size,int(code))
-        newfile.write(struct.pack('>cBI', symb, size, int(code)))
+        newfile.write(struct.pack('>ccBBI', numeromagico[0].encode(encoding='ascii'),
+                                  numeromagico[1].encode(encoding='ascii'), sym_arraylen - 1, sym_arraysize, filelen))
+        # Ahora se debe agregar un array de elementos de 6 bytes, cada uno de los cuales identifica un símbolo, su tamano y
+        # su código Huffman. En nuestro caso estos datos estan en huff
+        for elem in huff:
+            symb = elem.symbol
+            size = len(elem.code)  # .to_bytes(1, byteorder='big')  este se agrega en 1 byte
+            code = elem.code  # se agrega en 6 bytes aunque sea mas corto, como lo meto en 6 bytes??
+    #        print(symb,size,int(code))
+            newfile.write(struct.pack('>cBI', symb, size, int(code)))
 
-    for x in range(0, len(codificadoTotal), 8):
-        newfile.write(struct.pack('>B', int(codificadoTotal[x: x + 8], 2)))  # I o x o c? por tamano
+        for x in range(0, len(codificadoTotal), 8):
+            newfile.write(struct.pack('>B', int(codificadoTotal[x: x + 8], 2)))  # I o x o c? por tamano
 
-    newfile.close()
-    file.close()
+        newfile.close()
+        file.close()
 
-    return compressedfilelen
+        return compressedfilelen
 
 
 def main():
