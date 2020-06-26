@@ -57,9 +57,9 @@ def main():
 
         file = open(args.file, 'rb')  # debemos controlar el caso de que el file no sea encontrado\
         # Debemos leer el sym array y armar un dicc de named tuples con cada codigo y su correspondiente simbolo
-        mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
-    #    mn = file.read(2).decode()
-        mn = mmp.read(2).decode()
+        # mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
+        mn = file.read(2).decode()
+        # mn = mmp.read(2).decode()
         if mn != 'JA':
             return print("El archivo no es valido para descomprimir, tiene un numero magico que no es el de la compresion.")
         sym_arraylen = ord(file.read(1)) + 1
