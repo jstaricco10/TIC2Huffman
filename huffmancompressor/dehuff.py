@@ -57,22 +57,23 @@ def main():
 
         file = open(args.file, 'rb')  # debemos controlar el caso de que el file no sea encontrado\
         # Debemos leer el sym array y armar un dicc de named tuples con cada codigo y su correspondiente simbolo
-        # mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
-        mn = file.read(2).decode()
-        # mn = mmp.read(2).decode()
+        mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
+        # mn = file.read(2).decode()
+        mn = mmp.read(2).decode()
         if mn != 'JA':
             return print("El archivo no es valido para descomprimir, tiene un numero magico que no es el de la compresion.")
-        sym_arraylen = ord(file.read(1)) + 1
-        sym_arraysize = ord(file.read(1))
-        filelen = struct.unpack('!i', file.read(4))[0]
-        huffCode = namedtuple('huffCode', ' symbol size code')
+        sym_arraylen = ord(mmp.read(1)) + 1
+        sym_arraysize = ord(mmp.read(1))
+        filelen = struct.unpack('!i', mmp.read(4))[0]
+        huffCode = namedtuple('huffCode', 'symbol size code')
         huff = []
         for _ in range(sym_arraylen):
-            symbol = file.read(1)
-            size = file.read(1)
+            symbol = mmp.read(1)
+            size = mmp.read(1)
             size = int.from_bytes(size, byteorder='big')
-            code = file.read(4)
-            huff.append(huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0],)))
+            code = mmp.read(4)
+            print(code)
+            huff.append(huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0])))
         decompressedlen = decompress(huff, args, sym_arraylen, filelen, sym_arraysize)
         if args.verbose:
             print(f"El tamano del archivo antes de comprimido era de: {str(filelen)} bytes")
