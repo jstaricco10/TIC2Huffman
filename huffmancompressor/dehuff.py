@@ -88,7 +88,7 @@ def main():
                 huff[f'%0{size}d' % (struct.unpack('>I', code)[0])] = (
                     huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0])))
 
-            decompressedlen = decompress(huff, args, sym_arraylen, filelen)
+            decompressedlen = decompress(huff=huff, args=args, sym_arraylen=sym_arraylen, filelen=filelen)
 
             if args.verbose:
                 print(f"El tamano del archivo antes de comprimido era de: {str(filelen)} bytes")

@@ -1,13 +1,11 @@
 #! /usr/bin/env python3
 
-
 from heapq import heappush, heappop, heapify
 from collections import defaultdict, namedtuple
 import argparse
 import os
 import struct
 import mmap
-
 
 def encode(symb2freq):
     """Huffman encode the given dict mapping symbols to weights
@@ -27,7 +25,6 @@ def encode(symb2freq):
         for pair in hi[1:]:
             pair[1] = '1' + pair[1]
         heappush(heap, [lo[0] + hi[0]] + lo[1:] + hi[1:])
-    # debemos hacer esto con el pop del heap salteando el primero, hay que optimizar esto > HECHO
     for elem in heappop(heap)[1:]:
         lista.append(huffCode(elem[0], elem[1]))
     return lista
@@ -120,9 +117,9 @@ def main():
             if not b:
                 break
             symb2freq[b] += 1       #Cada vez q se repite un caracter, se suma un 1, al final se tiene la frecuencia de cada caracter
-        huff = encode(symb2freq)
+        huff = encode(symb2freq=symb2freq)
         file.close()
-        newLen = compress(huff, args, filelen)
+        newLen = compress(huff=huff,args=args, filelen=filelen)
         if newLen is not None:
             if args.verbose:
                 print("Symbol\tWeight\tHuffman Code")
