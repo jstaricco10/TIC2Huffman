@@ -27,14 +27,9 @@ def encode(symb2freq):
         for pair in hi[1:]:
             pair[1] = '1' + pair[1]
         heappush(heap, [lo[0] + hi[0]] + lo[1:] + hi[1:])
-    # debemos hacer esto con el pop del heap salteando el primero, hay que optimizar esto
-    salteodelprimero = 0
-    for elem in heappop(heap):
-        if salteodelprimero == 0:
-            salteodelprimero += 1
-        else:
-            pop = elem
-            lista.append(huffCode(pop[0], pop[1]))
+    # debemos hacer esto con el pop del heap salteando el primero, hay que optimizar esto > HECHO
+    for elem in heappop(heap)[1:]:
+        lista.append(huffCode(elem[0], elem[1]))
     return lista
 
 
