@@ -67,34 +67,37 @@ def main():
     if not args.file.endswith(".huff"):
         print("el archivo debe terminar en .huff para ser descompreso")
         return
-    with open(args.file, 'rb') as file:  # debemos controlar el caso de que el file no sea encontrado\
-        # Debemos leer el sym array y armar un dicc de named tuples con cada codigo y su correspondiente simbolo
-        mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
-        mn = mmp.read(2).decode()  # se saca el magic number del cabezal
-        if mn != 'JA':  # se comprueba que el archivo empiece con magic number
-            print("El archivo no es valido para descomprimir, tiene un numero magico que no es el de la compresion.")
-            return
-        sym_arraylen = ord(mmp.read(1)) + 1  # se guardan el resto de datos del cabezal
-        sym_arraysize = ord(mmp.read(1))
-        filelen = struct.unpack('!i', mmp.read(4))[0]
-        huffCode = namedtuple('huffCode', 'symbol size code')
-        huff = {}
-        for _ in range(sym_arraylen):  # se crea un diccionario con clave codigo huff y valor una tupla con el
-            # symbolo de ese codigo, el tamano del huff cofde y el huff code
-            symbol = mmp.read(1)
-            size = mmp.read(1)
-            size = int.from_bytes(size, byteorder='big')
-            code = mmp.read(4)
-            huff[f'%0{size}d' % (struct.unpack('>I', code)[0])] = (
-                huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0])))
+    try:
+        with open(args.file, 'rb') as file:  # debemos controlar el caso de que el file no sea encontrado\
+            # Debemos leer el sym array y armar un dicc de named tuples con cada codigo y su correspondiente simbolo
+            mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
+            mn = mmp.read(2).decode()  # se saca el magic number del cabezal
+            if mn != 'JA':  # se comprueba que el archivo empiece con magic number
+                print("El archivo no es valido para descomprimir, tiene un numero magico que no es el de la compresion.")
+                return
+            sym_arraylen = ord(mmp.read(1)) + 1  # se guardan el resto de datos del cabezal
+            sym_arraysize = ord(mmp.read(1))
+            filelen = struct.unpack('!i', mmp.read(4))[0]
+            huffCode = namedtuple('huffCode', 'symbol size code')
+            huff = {}
+            for _ in range(sym_arraylen):  # se crea un diccionario con clave codigo huff y valor una tupla con el
+                # symbolo de ese codigo, el tamano del huff cofde y el huff code
+                symbol = mmp.read(1)
+                size = mmp.read(1)
+                size = int.from_bytes(size, byteorder='big')
+                code = mmp.read(4)
+                huff[f'%0{size}d' % (struct.unpack('>I', code)[0])] = (
+                    huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0])))
 
-        decompressedlen = decompress(huff, args, sym_arraylen, filelen)
+            decompressedlen = decompress(huff, args, sym_arraylen, filelen)
 
-        if args.verbose:
-            print(f"El tamano del archivo antes de comprimido era de: {str(filelen)} bytes")
-            print(f"El tamano del archivo comprimido era de: {os.stat(args.file).st_size} bytes")
-            print(f"El tamano del archivo descomprimido es de: {str(decompressedlen)} bytes")
-        file.close()
+            if args.verbose:
+                print(f"El tamano del archivo antes de comprimido era de: {str(filelen)} bytes")
+                print(f"El tamano del archivo comprimido era de: {os.stat(args.file).st_size} bytes")
+                print(f"El tamano del archivo descomprimido es de: {str(decompressedlen)} bytes")
+            file.close()
+    except OSError as err:
+        print("El error es " + "OS error: {0}".format(err))
 
 
 if __name__ == '__main__':

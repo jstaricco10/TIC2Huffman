@@ -62,7 +62,7 @@ def compress(huff, args, filelen):
                     break
                 for h in huff:
                     if b == h.symbol:
-                        codificado = h.code
+                        codificado = h.code             #se hace un string con todos los codigos huff de las letras en vez de su codigo binario
                         codificadoTotal += codificado
             # debemos agregar en cod total los 0 al final que falten para tener tamano multiplo de 8
             cantAAgregar = 8 - (len(codificadoTotal) % 8)
@@ -115,11 +115,11 @@ def main():
         file = open(args.file, 'rb')
         mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
         symb2freq = defaultdict(int)
-        while True:
+        while True:                 # se lee hasta q no hallan mas bytes, ahi entra en el break
             b = mmp.read(1)
             if not b:
                 break
-            symb2freq[b] += 1
+            symb2freq[b] += 1       #Cada vez q se repite un caracter, se suma un 1, al final se tiene la frecuencia de cada caracter
         huff = encode(symb2freq)
         file.close()
         newLen = compress(huff, args, filelen)
