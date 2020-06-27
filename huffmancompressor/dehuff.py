@@ -19,7 +19,6 @@ def decompress(huff, args, sym_arraylen, filelen):
     Returns:
         [int]: retorna el largo del file descompreso
     """
-    # print(huff)
     with open(args.file, 'rb') as file:
         mmp = mmap.mmap(file.fileno(), length=0, flags=mmap.MAP_PRIVATE, prot=mmap.PROT_READ)
         mmp.seek(8 + 6 * sym_arraylen)  # ignoramos el cabezal y el sym array
