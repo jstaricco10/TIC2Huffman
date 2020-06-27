@@ -70,8 +70,7 @@ def compress(huff, args, filelen):
                 codificadoTotal += '0'
             # El largo del archivo comprimido es el largo del symarray por el tamano de cada uno de sus elementos mas
             # el largo del bit stream (que es el codificado total)
-            compressedfilelen = (len(codificadoTotal) / 8 + len(
-                huff) * 6) + 8  # 8 bytes ocupa el cabezal, cada entrada en
+            compressedfilelen = (len(codificadoTotal) / 8 + len(huff) * 6) + 8  # 8 bytes ocupa el cabezal, cada entrada en
             # huff ocupa 6 bytes y se suma los bytes del codificado
             if not args.force:
                 if filelen < compressedfilelen:
@@ -97,7 +96,7 @@ def compress(huff, args, filelen):
 
             newfile.close()
             file.close()
-
+            print("archivo compreso con exito")
             return compressedfilelen
     except OSError as err:
         print("El error es " + "OS error: {0}".format(err))

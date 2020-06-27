@@ -7,18 +7,17 @@ import mmap
 from collections import namedtuple
 
 
-def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
+def decompress(huff, args, sym_arraylen, filelen):
     """decompress: Descompresion del archivo .huff en un nuevo .orig
 
     Args:
-        huff ([type]): [description]
-        args ([type]): [description]
-        sym_arraylen ([type]): [description]
-        filelen ([type]): [description]
-        sym_arraysize ([type]): [description]
+        huff ([diccionary]): es un diccionario con clave codigo huff y valor una tupla (simbolo original(una "a" por ejemplo), tamano codigo huffman, codigo huffman)
+        args : argumentos pasados por consola, archivo .huff a descomprimir y una flag no obligatoria -v que muestra datos del proceso de decompresion
+        sym_arraylen ([lista]): largo de la lista con  los simbolos del archivo comprimido
+        filelen ([int]): tamano archivo original en bytes
 
     Returns:
-        [type]: [description]
+        [int]: retorna el largo del file descompreso
     """
     # print(huff)
     with open(args.file, 'rb') as file:
@@ -47,7 +46,7 @@ def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
             if codigo in huff.keys():
                 tuplaHuff = huff.get(codigo)
                 if codigo == tuplaHuff.code and newfile.tell() != filelen:  # la ultima parte del if hace q no se
-                    # tengan en cuenta los bits de relleno
+                                                                            # tengan en cuenta los bits de relleno
                     newfile.write(tuplaHuff.symbol)
                     codigo = ''
 
@@ -55,6 +54,7 @@ def decompress(huff, args, sym_arraylen, filelen, sym_arraysize):
 
         size = newfile.tell()
         newfile.close()
+        print("archivo descompreso con exito")
         return size
 
 
@@ -62,7 +62,7 @@ def main():
     parser = argparse.ArgumentParser(description='Desomprime archivos usando un arbol de Huffman')
     parser.add_argument('file', help='Nombre del archivo a descomprimir')
     parser.add_argument('-v', '--verbose', help='Imprime informacion del avance del proceso', action='store_true')
-    # con el parser debo procesar el nombre del archivo
+    # con el parser debo procesamos los argumentos pasados al ejecutar el programa
     args = parser.parse_args()
     if not args.file.endswith(".huff"):
         print("el archivo debe terminar en .huff para ser descompreso")
@@ -88,7 +88,7 @@ def main():
             huff[f'%0{size}d' % (struct.unpack('>I', code)[0])] = (
                 huffCode(symbol, size, f'%0{size}d' % (struct.unpack('>I', code)[0])))
 
-        decompressedlen = decompress(huff, args, sym_arraylen, filelen, sym_arraysize)
+        decompressedlen = decompress(huff, args, sym_arraylen, filelen)
 
         if args.verbose:
             print(f"El tamano del archivo antes de comprimido era de: {str(filelen)} bytes")
